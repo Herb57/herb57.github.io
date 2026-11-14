@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Herb57 · O Fusca que Fala</title>
+<meta name="description" content="Herb57, o Fusca 1977 que fala. Tire uma foto com ele e siga @fusca.herb57.">
+<meta property="og:title" content="Herb57 · O Fusca que Fala">
+<meta property="og:description" content="Tire uma foto com o Herb57 e siga @fusca.herb57.">
+<meta property="og:image" content="https://herb57.com.br/foto/img/herb57-por-do-sol.jpg">
+<meta property="og:url" content="https://herb57.com.br/">
+<meta name="theme-color" content="#EEF3F9">
+<link rel="icon" href="img/herb57-selo.svg" type="image/svg+xml">
+<style>
+@font-face{font-family:Anton;src:url(fonts/anton.woff2) format("woff2");font-display:swap}
+@font-face{font-family:Inter;src:url(fonts/inter-400.woff2) format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:Inter;src:url(fonts/inter-600.woff2) format("woff2");font-weight:600;font-display:swap}
+@font-face{font-family:Inter;src:url(fonts/inter-800.woff2) format("woff2");font-weight:800;font-display:swap}
+:root{--azul:#13203A;--apoio:#3E4C66;--ouro:#F2B33D;--fundo:#EEF3F9;--branco:#FFFFFF;--vermelho:#D7263D;--faixa-azul:#1F4EB4}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--fundo);color:var(--azul);font-family:Inter,system-ui,sans-serif;line-height:1.45}
+main{max-width:560px;margin:0 auto;padding:28px 20px 40px}
+.faixas{height:10px;background:linear-gradient(90deg,var(--vermelho) 0 40%,var(--branco) 40% 60%,var(--faixa-azul) 60% 100%)}
+.topo{text-align:center}
+.topo img.avatar{width:min(78%,340px);height:auto;display:block;margin:6px auto 0}
+.topo img.letreiro{width:min(70%,300px);height:auto;display:block;margin:10px auto 0}
+.topo p{margin:6px 0 0;font-family:Anton,sans-serif;letter-spacing:.06em;font-size:20px;color:var(--apoio)}
+.acoes{display:flex;flex-direction:column;gap:12px;margin-top:26px}
+a.botao{display:flex;align-items:center;justify-content:center;min-height:58px;border-radius:14px;text-decoration:none;font-weight:800;font-size:19px;padding:0 18px;text-align:center}
+a.principal{background:var(--azul);color:#fff}
+a.secundario{background:var(--branco);color:var(--azul);border:2px solid var(--azul)}
+a.botao:focus-visible{outline:3px solid var(--ouro);outline-offset:3px}
+.sobre{margin-top:30px;font-size:16px;color:var(--apoio)}
+.sobre strong{color:var(--azul)}
+section.eventos{margin-top:30px}
+section.eventos h2{font-family:Anton,sans-serif;font-weight:400;font-size:26px;margin:0 0 10px;letter-spacing:.01em}
+section.eventos ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+section.eventos li{background:var(--branco);border-radius:12px;padding:12px 14px;display:flex;gap:12px;align-items:baseline}
+section.eventos .data{flex:none;width:84px;font-weight:600;font-size:14px;color:var(--apoio)}
+section.eventos .nome{font-weight:800}
+section.eventos .cidade{display:block;font-size:14px;color:var(--apoio)}
+section.eventos .hoje{display:inline-block;margin-left:6px;background:var(--ouro);color:#2A1C00;border-radius:6px;padding:0 6px;font-size:12px;font-weight:800;vertical-align:2px}
+footer{margin-top:34px;text-align:center;font-size:14px;color:var(--apoio)}
+footer a{color:var(--azul)}
+@media (prefers-reduced-motion:no-preference){a.botao{transition:transform .12s}a.botao:active{transform:scale(.98)}}
+</style>
+</head>
+<body>
+<div class="faixas" aria-hidden="true"></div>
+<main>
+  <header class="topo">
+    <img class="avatar" src="img/herb57-avatar.webp" width="900" height="745" alt="Avatar do Herb57, um Fusca branco com faixas vermelha e azul e o número 57">
+    <h1 style="margin:0"><img class="letreiro" src="img/herb57-letreiro.svg" alt="Herb57"></h1>
+    <p>O FUSCA QUE FALA</p>
+  </header>
+
+  <nav class="acoes" aria-label="O que fazer">
+    <a class="botao principal" href="/foto/">Tirar foto com o Herb57</a>
+    <a class="botao secundario" href="https://www.instagram.com/fusca.herb57/" rel="noopener">Seguir no Instagram</a>
+  </nav>
+
+  <p class="sobre"><strong>Herb57</strong> é um Fusca 1977 que conversa com quem chega perto, faz quiz e grava vídeos com os visitantes nos encontros de carros antigos.</p>
+
+  <section class="eventos" id="eventos" hidden>
+    <h2>Por onde o Herb57 passou</h2>
+    <ol id="lista-eventos"></ol>
+  </section>
+
+  <footer>Instagram <a href="https://www.instagram.com/fusca.herb57/" rel="noopener">@fusca.herb57</a></footer>
+</main>
+<script>
+// Histórico de eventos: o mesmo eventos.json que a página da foto usa (gravado pelo Home Assistant).
+(async () => {
+  try {
+    const r = await fetch(`/foto/eventos.json?t=${Date.now()}`, { cache: "no-store" });
+    if (!r.ok) return;
+    const j = await r.json();
+    const hoje = new Date(); const iso = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, "0")}-${String(hoje.getDate()).padStart(2, "0")}`;
+    const lista = (Array.isArray(j.eventos) ? j.eventos : []).filter((e) => e && e.nome && e.de && e.de <= iso)
+      .sort((a, b) => (a.de < b.de ? 1 : -1));
+    if (!lista.length) return;
+    const fmt = (d) => d.split("-").reverse().join("/");
+    const ol = document.getElementById("lista-eventos");
+    for (const e of lista) {
+      const li = document.createElement("li");
+      const data = document.createElement("span"); data.className = "data";
+      data.textContent = e.ate && e.ate !== e.de ? `${fmt(e.de).slice(0, 5)} a ${fmt(e.ate)}` : fmt(e.de);
+      const txt = document.createElement("span");
+      const nome = document.createElement("span"); nome.className = "nome"; nome.textContent = e.nome; txt.append(nome);
+      if (e.de <= iso && iso <= (e.ate || e.de)) { const h = document.createElement("span"); h.className = "hoje"; h.textContent = "hoje"; txt.append(h); }
+      if (e.cidade) { const c = document.createElement("span"); c.className = "cidade"; c.textContent = e.cidade; txt.append(c); }
+      li.append(data, txt); ol.append(li);
+    }
+    document.getElementById("eventos").hidden = false;
+  } catch (_) { /* sem histórico, a página segue sem a lista */ }
+})();
+</script>
+</body>
+</html>
